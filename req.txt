@@ -1,0 +1,5 @@
+flask
+picamera2
+waitress
+cv2
+adafruit-circuitpython-vl53l4cd

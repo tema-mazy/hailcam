@@ -1,0 +1,25 @@
+[Unit]
+Description=HailCam
+After=network.target
+
+[Service]
+TimeoutStartSec=30
+TimeoutStopSec=5
+Restart=always
+
+EnvironmentFile=-/etc/default/hailcam
+
+WorkingDirectory=/home/pi/hailcam
+ReadWriteDirectories=/home/pi/hailcam
+PrivateTmp=true
+User=pi
+Group=pi
+ExecStart=/home/pi/hailcam/.env/bin/python3 /home/pi/hailcam/hailcam.py
+
+StandardError=journal
+
+SyslogIdentifier=hailcam
+
+
+[Install]
+WantedBy=multi-user.target
