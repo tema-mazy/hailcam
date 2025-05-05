@@ -15,6 +15,35 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__,template_folder="tpl")
 
+# Route for displaying the main page
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Route for health state
+@app.route('/health')
+def state():
+    return {
+        "health": "OK"
+    }
+
+
+
+# Route for poweroff
+@app.route('/poweroff')
+def poweroff():
+    exit
+
+
+# Route for manipulating GPIO
+@app.route('/output/<string:name>/<int:state>')
+def output(name,state):
+    if state != 1:
+       state = 0
+    logger.info("OUTPUT {}:{}".format(name,state))
+    return { "pin": name, "state": state }
+
+
 # Route for serving still image
 @app.route('/distance')
 def distance():
@@ -37,10 +66,6 @@ def video_feed():
     logger.info("Video feed requested.")
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Route for displaying the main page
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 #reas distance from sensor
 def get_distance():
