@@ -14,14 +14,11 @@ from waitress import serve
 led_b = 11
 led_g = 9
 led_r = 10
-out1 = 14
-out2 = 15
-power = 17
-# dtoverlay=gpio-shutdown,gpio_pin=17,active_low=1,gpio_pull=up,debounce=1000
+out1  = 14
+out2  = 15
 
-
-i2c = None 
-vl53 = None
+i2c   = None 
+vl53  = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -72,7 +69,6 @@ def state():
 # Route for poweroff
 @app.route('/poweroff')
 def poweroff():
-    GPIO.output(power, GPIO.LOW)
     os.system('sudo poweroff')
     return {
         "DONE": "OK"
@@ -220,9 +216,6 @@ if __name__ == '__main__':
 
         GPIO.output(led_g, GPIO.LOW)
         GPIO.output(led_r, GPIO.HIGH)
-
-        GPIO.setup(power, GPIO.OUT, initial=GPIO.HIGH)
-
 
         try:
             logger.info("Initializing Distance sensor.")

@@ -50,7 +50,7 @@ arm_boost=1
 [pi02]
 #otg_mode=1
 dtoverlay=dwc2
-#dtoverlay=gpio-shutdown,gpio_pin=17,active_low=1,gpio_pull=up,debounce=1000
+dtoverlay=gpio-shutdown,gpio_pin=17,active_low=1,gpio_pull=up,debounce=1000
 
 [all]
 dtparam=act_led_trigger=actpwr
