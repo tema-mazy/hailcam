@@ -25,3 +25,16 @@ response - jpeg
 **http://127.0.0.1:8082/video_feed** - mjpeg video stream low res (1280 * 1024 )
 
 response - mjpeg stream
+
+
+
+--------------
+
+init raspi with wifi config and write image
+
+copy config.txt to bootfs
+create file 'ssh' in bootfs
+boot RasPI
+after  wifi is UP - run init-raspi.sh pi@ip to make system and app setup
+
+

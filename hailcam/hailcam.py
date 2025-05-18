@@ -20,7 +20,7 @@ power = 17
 # dtoverlay=gpio-shutdown,gpio_pin=17,active_low=1,gpio_pull=up,debounce=1000
 
 
-i2c = board.I2C()  # uses board.SCL and board.SDA
+i2c = None 
 vl53 = None
 
 # Configure logging
@@ -73,6 +73,7 @@ def state():
 @app.route('/poweroff')
 def poweroff():
     GPIO.output(power, GPIO.LOW)
+    os.system('sudo poweroff')
     return {
         "DONE": "OK"
     }
@@ -206,52 +207,59 @@ def initialize_camera():
 
 
 if __name__ == '__main__':
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(power, GPIO.OUT, initial=GPIO.HIGH)
-    GPIO.setup(out1, GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(out2, GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(led_r, GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(led_g, GPIO.OUT, initial=GPIO.LOW)
-    GPIO.output(led_g, GPIO.LOW)
-    GPIO.output(led_r, GPIO.HIGH)
     host = os.environ.get('HOST', '0.0.0.0')
     port = os.environ.get('PORT', '8082')
 
-    GPIO.output(led_r, GPIO.LOW)
-
     try:
-        logger.info("Initializing Distance sensor.")
-        vl53 = adafruit_vl53l4cd.VL53L4CD(i2c)
 
-        # OPTIONAL: can set non-default values
-        vl53.inter_measurement = 0
-        vl53.timing_budget = 200
-    
-        model_id, module_type = vl53.model_info
-        logger.info("Sensor model ID: 0x{:0X}".format(model_id))
-        logger.info("Sensor moudle Type: 0x{:0X}".format(module_type))
-        vl53.start_ranging()
-        
-    except:
-        ERRORS = "Range Sensor not found"
-        logger.error("Range sensor not found")
-        
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(out1, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(out2, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(led_r, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(led_g, GPIO.OUT, initial=GPIO.LOW)
 
-    logger.info("Initializing Camera.")
-    initialize_camera()  # Ensure camera is initialized
-
-    if not camera_initialized:
-        ERRORC = "Camera not initialized properly."
-        logger.error("Camera not initialized properly")
-
-    logger.info(f"Starting server at {host}:{port}")
-
-    if ERRORS or ERRORC:
+        GPIO.output(led_g, GPIO.LOW)
         GPIO.output(led_r, GPIO.HIGH)
-    else:
-        GPIO.output(led_g, GPIO.HIGH)
 
-    serve(app, host=host, port=int(port))
-    GPIO.output(led_r, GPIO.LOW)
-    GPIO.output(led_g, GPIO.LOW)
+        GPIO.setup(power, GPIO.OUT, initial=GPIO.HIGH)
 
+
+        try:
+            logger.info("Initializing Distance sensor.")
+            i2c = board.I2C()  # uses board.SCL and board.SDA
+            vl53 = adafruit_vl53l4cd.VL53L4CD(i2c)
+
+            # OPTIONAL: can set non-default values
+            vl53.inter_measurement = 0
+            vl53.timing_budget = 200
+        
+            model_id, module_type = vl53.model_info
+            logger.info("Sensor model ID: 0x{:0X}".format(model_id))
+            logger.info("Sensor moudle Type: 0x{:0X}".format(module_type))
+            vl53.start_ranging()
+        
+        except:
+            ERRORS = "Range Sensor not found"
+            logger.error("Range sensor not found")
+        
+
+        logger.info("Initializing Camera.")
+        initialize_camera()  # Ensure camera is initialized
+
+        if not camera_initialized:
+            ERRORC = "Camera not initialized properly."
+            logger.error("Camera not initialized properly")
+
+        logger.info(f"Starting server at {host}:{port}")
+
+        if ERRORS or ERRORC:
+            GPIO.output(led_r, GPIO.HIGH)
+        else:
+            GPIO.output(led_r, GPIO.LOW)
+            GPIO.output(led_g, GPIO.HIGH)
+
+        serve(app, host=host, port=int(port))
+    finally:
+        GPIO.output(led_r, GPIO.LOW)
+        GPIO.output(led_g, GPIO.LOW)
+        GPIO.cleanup()

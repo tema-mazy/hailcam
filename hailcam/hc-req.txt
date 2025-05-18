@@ -1,5 +1,5 @@
 flask
 picamera2
 waitress
-cv2
+opencv-python
 adafruit-circuitpython-vl53l4cd
