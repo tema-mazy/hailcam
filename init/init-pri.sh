@@ -1,14 +1,18 @@
 #!/bin/bash
 cp config.txt /boot/firmware
+
 for m in g_serial i2c_dev; do
     if [ -z `cat /etc/modules | grep $m` ]; then
 	modprobe $m
         echo "$m" >> /etc/modules
     fi
 done
-
 sudo systemctl enable serial-getty@ttyGS0.service
 sudo systemctl start serial-getty@ttyGS0.service
+host="pi2zw.local"
+hostname $host
+echo "$host" > /etc/hostname
+
 
 sed -i 's/^AcceptEnv LANG/#AcceptEnv LANG/i' /etc/ssh/sshd_config
 
